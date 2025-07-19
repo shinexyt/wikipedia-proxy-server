@@ -77,23 +77,27 @@ vercel --prod
 **错误**: `The 'functions' property cannot be used in conjunction with the 'builds' property`
 **解决**: 已移除`builds`和`routes`配置，使用现代的Vercel函数配置方式
 
-### 2. 函数路径错误
+### 2. 路由配置冲突
+**错误**: `If 'rewrites', 'redirects', 'headers', 'cleanUrls' or 'trailingSlash' are used, then 'routes' cannot be present`
+**解决**: 已将`routes`配置替换为`rewrites`配置，与`headers`兼容
+
+### 3. 函数路径错误
 **错误**: `The pattern "index.js" defined in 'functions' doesn't match any Serverless Functions inside the 'api' directory`
 **解决**: 已将主函数移动到`api/index.js`，并更新vercel.json配置
 
-### 3. 模块导入问题
+### 4. 模块导入问题
 - 确保package.json中设置了`"type": "module"`
 - 使用ES6模块语法 (`import/export`)
 
-### 4. 函数超时
+### 5. 函数超时
 - 已将函数超时时间设置为30秒 (`maxDuration: 30`)
 - 如需更长时间，可以升级Vercel套餐
 
-### 5. CORS问题
+### 6. CORS问题
 - 已在代码和vercel.json中配置了CORS头部
 - API支持跨域请求
 
-### 6. 依赖问题
+### 7. 依赖问题
 - 确保所有依赖都在package.json的dependencies中
 - 运行`npm install`确保依赖正确安装
 

@@ -57,6 +57,14 @@ try {
     checks.push('✅ vercel.json - 使用现代配置');
   }
   
+  if (vercelConfig.routes && vercelConfig.headers) {
+    checks.push('❌ vercel.json - routes和headers不能同时使用');
+  } else if (vercelConfig.rewrites || vercelConfig.routes) {
+    checks.push('✅ vercel.json - 路由配置正确');
+  } else {
+    checks.push('⚠️  vercel.json - 缺少路由配置');
+  }
+  
   if (vercelConfig.functions) {
     checks.push('✅ vercel.json - 函数配置存在');
   } else {

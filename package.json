@@ -10,7 +10,8 @@
     "build": "echo 'Build completed - no build step required for this project'",
     "test": "node test.js",
     "vercel-build": "echo 'Vercel build completed'",
-    "deploy-check": "node deploy-check.js"
+    "deploy-check": "node deploy-check.js",
+    "vercel-check": "node vercel-check.js"
   },
   "keywords": [
     "wikipedia",
