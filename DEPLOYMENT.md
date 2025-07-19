@@ -15,6 +15,8 @@
 wikipedia-proxy/
 ├── api/
 │   └── index.js        # Vercel无服务器函数入口
+├── public/
+│   └── index.html      # 静态首页（Vercel要求）
 ├── index.js            # 本地开发服务器
 ├── package.json        # 项目配置和依赖
 ├── vercel.json         # Vercel部署配置
@@ -81,23 +83,27 @@ vercel --prod
 **错误**: `If 'rewrites', 'redirects', 'headers', 'cleanUrls' or 'trailingSlash' are used, then 'routes' cannot be present`
 **解决**: 已将`routes`配置替换为`rewrites`配置，与`headers`兼容
 
-### 3. 函数路径错误
+### 3. 输出目录错误
+**错误**: `No Output Directory named "public" found after the Build completed`
+**解决**: 已创建`public`目录和静态首页，满足Vercel部署要求
+
+### 4. 函数路径错误
 **错误**: `The pattern "index.js" defined in 'functions' doesn't match any Serverless Functions inside the 'api' directory`
 **解决**: 已将主函数移动到`api/index.js`，并更新vercel.json配置
 
-### 4. 模块导入问题
+### 5. 模块导入问题
 - 确保package.json中设置了`"type": "module"`
 - 使用ES6模块语法 (`import/export`)
 
-### 5. 函数超时
+### 6. 函数超时
 - 已将函数超时时间设置为30秒 (`maxDuration: 30`)
 - 如需更长时间，可以升级Vercel套餐
 
-### 6. CORS问题
+### 7. CORS问题
 - 已在代码和vercel.json中配置了CORS头部
 - API支持跨域请求
 
-### 7. 依赖问题
+### 8. 依赖问题
 - 确保所有依赖都在package.json的dependencies中
 - 运行`npm install`确保依赖正确安装
 

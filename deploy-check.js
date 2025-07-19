@@ -17,7 +17,8 @@ const requiredFiles = [
   'package.json',
   'index.js',
   'api/index.js',
-  'vercel.json'
+  'vercel.json',
+  'public/index.html'
 ];
 
 requiredFiles.forEach(file => {

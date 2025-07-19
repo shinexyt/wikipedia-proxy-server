@@ -93,10 +93,13 @@ npm run deploy-check
 wikipedia-proxy/
 ├── api/
 │   └── index.js        # Vercel无服务器函数入口
+├── public/
+│   └── index.html      # 静态首页和API文档
 ├── index.js            # 本地开发服务器
 ├── package.json        # 项目配置和依赖
 ├── vercel.json         # Vercel部署配置
 ├── deploy-check.js     # 部署前检查脚本
+├── vercel-check.js     # Vercel配置验证脚本
 └── DEPLOYMENT.md       # 详细部署指南
 ```
 

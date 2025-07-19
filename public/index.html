@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wikipedia API 代理服务器</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+        .endpoint {
+            background: #f8f9fa;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #28a745;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .feature {
+            display: flex;
+            align-items: center;
+            margin: 0.5rem 0;
+        }
+        .feature::before {
+            content: "✅";
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌍 Wikipedia API 代理服务器</h1>
+        <p>为WikiTok应用提供维基百科API代理服务，支持中国内陆访问</p>
+        <div class="status-indicator"></div>
+        <span>服务运行中</span>
+    </div>
+
+    <h2>📚 API 端点</h2>
+    
+    <div class="endpoint">
+        <h3>健康检查</h3>
+        <p><strong>GET</strong> <code>/health</code></p>
+        <p>检查服务器状态和运行信息</p>
+    </div>
+
+    <div class="endpoint">
+        <h3>Wikipedia API 代理</h3>
+        <p><strong>GET</strong> <code>/api/wikipedia/{language}</code></p>
+        <p>代理维基百科API请求，支持所有标准Wikipedia API参数</p>
+    </div>
+
+    <div class="endpoint">
+        <h3>使用统计</h3>
+        <p><strong>GET</strong> <code>/usage</code></p>
+        <p>查看API使用统计和服务器性能指标</p>
+    </div>
+
+    <h2>🌐 支持的语言</h2>
+    <p>支持41种语言，包括：中文(zh)、英语(en)、法语(fr)、德语(de)、日语(ja)、韩语(ko)、西班牙语(es) 等...</p>
+
+    <h2>🔗 使用示例</h2>
+    <div class="code">
+# 获取英文随机文章
+curl "/api/wikipedia/en?action=query&format=json&generator=random&grnnamespace=0&prop=extracts|info|pageimages&grnlimit=5"
+
+# 获取中文随机文章
+curl "/api/wikipedia/zh?action=query&format=json&generator=random&grnnamespace=0&prop=extracts|info|pageimages&grnlimit=5"
+
+# 搜索文章
+curl "/api/wikipedia/en?action=query&format=json&list=search&srsearch=artificial+intelligence&srlimit=10"
+    </div>
+
+    <h2>⚡ 技术特性</h2>
+    <div class="feature">无服务器架构 - 基于Vercel Functions</div>
+    <div class="feature">CORS支持 - 支持跨域请求</div>
+    <div class="feature">缓存优化 - 5分钟API响应缓存</div>
+    <div class="feature">压缩传输 - gzip压缩</div>
+    <div class="feature">安全头部 - helmet安全配置</div>
+    <div class="feature">速率限制 - 防止API滥用</div>
+    <div class="feature">错误处理 - 完善的错误处理机制</div>
+
+    <footer style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #eee; color: #666;">
+        <p>由 <a href="https://github.com/shinexyt/wikipedia-proxy-server" style="color: #007bff;">Wikipedia Proxy Server</a> 强力驱动</p>
+        <p>为 <a href="https://github.com/IsaacGemal/wikitok" style="color: #007bff;">WikiTok</a> 项目服务</p>
+    </footer>
+
+    <script>
+        // 检查API健康状况
+        fetch('/health')
+            .then(response => response.json())
+            .then(data => {
+                console.log('API服务器状态:', data);
+                if (data.status === 'healthy') {
+                    document.querySelector('.status-indicator').style.background = '#28a745';
+                }
+            })
+            .catch(() => {
+                document.querySelector('.status-indicator').style.background = '#dc3545';
+            });
+    </script>
+</body>
+</html>
