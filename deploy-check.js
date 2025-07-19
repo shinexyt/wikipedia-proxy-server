@@ -16,6 +16,7 @@ const checks = [];
 const requiredFiles = [
   'package.json',
   'index.js',
+  'api/index.js',
   'vercel.json'
 ];
 

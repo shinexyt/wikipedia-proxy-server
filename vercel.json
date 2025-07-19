@@ -5,10 +5,16 @@
     "NODE_ENV": "production"
   },
   "functions": {
-    "index.js": {
+    "api/index.js": {
       "maxDuration": 30
     }
   },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.js"
+    }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",

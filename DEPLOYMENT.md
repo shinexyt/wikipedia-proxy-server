@@ -10,6 +10,17 @@
 - `package.json` - 包含正确的依赖和脚本
 - `.gitignore` - 排除不必要的文件
 
+**项目文件结构**:
+```
+wikipedia-proxy/
+├── api/
+│   └── index.js        # Vercel无服务器函数入口
+├── index.js            # 本地开发服务器
+├── package.json        # 项目配置和依赖
+├── vercel.json         # Vercel部署配置
+└── deploy-check.js     # 部署前检查脚本
+```
+
 ### 2. 部署前检查
 
 在部署之前，运行检查脚本确保配置正确：
@@ -66,19 +77,23 @@ vercel --prod
 **错误**: `The 'functions' property cannot be used in conjunction with the 'builds' property`
 **解决**: 已移除`builds`和`routes`配置，使用现代的Vercel函数配置方式
 
-### 2. 模块导入问题
+### 2. 函数路径错误
+**错误**: `The pattern "index.js" defined in 'functions' doesn't match any Serverless Functions inside the 'api' directory`
+**解决**: 已将主函数移动到`api/index.js`，并更新vercel.json配置
+
+### 3. 模块导入问题
 - 确保package.json中设置了`"type": "module"`
 - 使用ES6模块语法 (`import/export`)
 
-### 3. 函数超时
+### 4. 函数超时
 - 已将函数超时时间设置为30秒 (`maxDuration: 30`)
 - 如需更长时间，可以升级Vercel套餐
 
-### 4. CORS问题
+### 5. CORS问题
 - 已在代码和vercel.json中配置了CORS头部
 - API支持跨域请求
 
-### 5. 依赖问题
+### 6. 依赖问题
 - 确保所有依赖都在package.json的dependencies中
 - 运行`npm install`确保依赖正确安装
 
