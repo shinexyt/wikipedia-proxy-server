@@ -10,7 +10,20 @@
 - `package.json` - 包含正确的依赖和脚本
 - `.gitignore` - 排除不必要的文件
 
-### 2. 使用Vercel CLI部署
+### 2. 部署前检查
+
+在部署之前，运行检查脚本确保配置正确：
+
+```bash
+npm run deploy-check
+```
+
+这个脚本会验证：
+- 必要文件是否存在
+- package.json配置是否正确
+- vercel.json配置是否符合要求
+
+### 3. 使用Vercel CLI部署
 
 ```bash
 # 安装Vercel CLI（如果还没有安装）
@@ -26,20 +39,20 @@ vercel
 vercel --prod
 ```
 
-### 3. 使用GitHub集成部署
+### 4. 使用GitHub集成部署
 
 1. 将代码推送到GitHub仓库
 2. 在Vercel Dashboard中连接GitHub仓库
 3. 选择这个项目仓库
 4. Vercel会自动检测配置并部署
 
-### 4. 环境变量配置
+### 5. 环境变量配置
 
 在Vercel Dashboard中，你可以设置以下环境变量：
 
 - `NODE_ENV=production` (已在vercel.json中设置)
 
-### 5. 部署后测试
+### 6. 部署后测试
 
 部署完成后，你可以通过以下端点测试：
 
@@ -49,19 +62,23 @@ vercel --prod
 
 ## 常见问题解决
 
-### 1. 模块导入问题
+### 1. 配置冲突错误
+**错误**: `The 'functions' property cannot be used in conjunction with the 'builds' property`
+**解决**: 已移除`builds`和`routes`配置，使用现代的Vercel函数配置方式
+
+### 2. 模块导入问题
 - 确保package.json中设置了`"type": "module"`
 - 使用ES6模块语法 (`import/export`)
 
-### 2. 函数超时
+### 3. 函数超时
 - 已将函数超时时间设置为30秒 (`maxDuration: 30`)
 - 如需更长时间，可以升级Vercel套餐
 
-### 3. CORS问题
+### 4. CORS问题
 - 已在代码和vercel.json中配置了CORS头部
 - API支持跨域请求
 
-### 4. 依赖问题
+### 5. 依赖问题
 - 确保所有依赖都在package.json的dependencies中
 - 运行`npm install`确保依赖正确安装
 
