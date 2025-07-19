@@ -1,6 +1,6 @@
 # Wikipedia API 代理服务器
 
-> 为WikiTok应用提供维基百科API代理服务，支持中国内陆访问
+> 维基百科API代理服务
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fshinexyt%2Fwikipedia-proxy-server)
 
@@ -109,7 +109,7 @@ wikipedia-proxy/
 
 ## 🔗 相关项目
 
-- [WikiTok - TikTok风格的维基百科浏览器](https://github.com/IsaacGemal/wikitok)
+- [WikiTok - TikTok风格的维基百科浏览器](https://github.com/shinexyt/wikitok)
 
 ---
 

@@ -11,9 +11,9 @@ const PORT = process.env.PORT || 3001;
 
 // 支持的维基百科语言列表
 const SUPPORTED_LANGUAGES = [
-  'en', 'ar', 'bn', 'ca', 'cs', 'de', 'eo', 'es', 'eu', 'fa', 'fi', 'fr', 
-  'el', 'gan', 'he', 'hi', 'hr', 'hu', 'id', 'it', 'ja', 'ko', 'ml', 'nl', 
-  'pl', 'pt', 'ro', 'ru', 'sk', 'sr', 'sv', 'te', 'th', 'tr', 'uk', 'ur', 
+  'en', 'ar', 'bn', 'ca', 'cs', 'de', 'eo', 'es', 'eu', 'fa', 'fi', 'fr',
+  'el', 'gan', 'he', 'hi', 'hr', 'hu', 'id', 'it', 'ja', 'ko', 'ml', 'nl',
+  'pl', 'pt', 'ro', 'ru', 'sk', 'sr', 'sv', 'te', 'th', 'tr', 'uk', 'ur',
   'vi', 'wuu', 'zh-yue', 'zh', 'ks'
 ];
 
@@ -30,8 +30,7 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://wikitok.vercel.app',
-    'https://www.wikitok.io',
+    'https://wikitok.littlejoy.live',
     /\.vercel\.app$/,
     /localhost:\d+$/
   ],
@@ -68,7 +67,7 @@ app.get('/health', (req, res) => {
 app.get('/', (req, res) => {
   res.json({
     name: 'Wikipedia API代理服务器',
-    description: '为WikiTok应用提供维基百科API代理服务，支持中国内陆访问',
+    description: '维基百科API代理服务',
     author: 'shinexyt',
     version: '1.0.0',
     endpoints: {
@@ -77,7 +76,7 @@ app.get('/', (req, res) => {
       usage: '/usage'
     },
     supported_languages: SUPPORTED_LANGUAGES.length,
-    documentation: 'https://github.com/IsaacGemal/wikitok'
+    documentation: 'https://github.com/shinexyt/wikipedia-proxy-server'
   });
 });
 
@@ -106,14 +105,14 @@ function validateWikipediaParams(query) {
     'srsearch', 'srnamespace', 'srlimit', 'sroffset', 'titles', 'pageids',
     'redirects', 'converttitles', 'iwurl', 'continue', 'rawcontinue'
   ];
-  
+
   const filteredParams = {};
   for (const [key, value] of Object.entries(query)) {
     if (allowedParams.includes(key)) {
       filteredParams[key] = value;
     }
   }
-  
+
   return filteredParams;
 }
 
@@ -128,10 +127,10 @@ function buildWikipediaURL(language, params) {
   } else if (language.includes('-')) {
     langCode = language.split('-')[0];
   }
-  
+
   const baseURL = `https://${langCode}.wikipedia.org/w/api.php`;
   const urlParams = new URLSearchParams(params);
-  
+
   return `${baseURL}?${urlParams.toString()}`;
 }
 
@@ -139,12 +138,12 @@ function buildWikipediaURL(language, params) {
 app.get('/api/wikipedia/:language', async (req, res) => {
   const { language } = req.params;
   const startTime = Date.now();
-  
+
   try {
     // 更新统计
     requestStats.total++;
     requestStats.byLanguage[language] = (requestStats.byLanguage[language] || 0) + 1;
-    
+
     // 验证语言代码
     if (!SUPPORTED_LANGUAGES.includes(language) && !language.startsWith('zh-') && !language.includes('-')) {
       return res.status(400).json({
@@ -153,10 +152,10 @@ app.get('/api/wikipedia/:language', async (req, res) => {
         supported_languages: SUPPORTED_LANGUAGES
       });
     }
-    
+
     // 验证和过滤参数
     const validatedParams = validateWikipediaParams(req.query);
-    
+
     // 确保有必要的参数
     if (!validatedParams.action) {
       validatedParams.action = 'query';
@@ -164,33 +163,33 @@ app.get('/api/wikipedia/:language', async (req, res) => {
     if (!validatedParams.format) {
       validatedParams.format = 'json';
     }
-    
+
     // 强制设置origin参数以避免CORS问题
     validatedParams.origin = '*';
-    
+
     // 构建目标URL
     const targetURL = buildWikipediaURL(language, validatedParams);
-    
+
     console.log(`代理请求: ${language} -> ${targetURL}`);
-    
+
     // 发起请求到维基百科
     const response = await fetch(targetURL, {
       method: 'GET',
       headers: {
-        'User-Agent': 'WikiTok-Proxy/1.0 (https://github.com/IsaacGemal/wikitok)',
+        'User-Agent': 'WikiTok-Proxy/1.0 (https://github.com/shinexyt/wikipedia-proxy-server)',
         'Accept': 'application/json',
         'Accept-Encoding': 'gzip, deflate',
       },
       timeout: 10000 // 10秒超时
     });
-    
+
     if (!response.ok) {
       throw new Error(`维基百科API响应错误: ${response.status} ${response.statusText}`);
     }
-    
+
     const data = await response.json();
     const responseTime = Date.now() - startTime;
-    
+
     // 添加代理信息到响应头
     res.set({
       'X-Proxy-Server': 'wikipedia-proxy-v1.0',
@@ -198,17 +197,17 @@ app.get('/api/wikipedia/:language', async (req, res) => {
       'X-Source-Language': language,
       'Cache-Control': 'public, max-age=300' // 5分钟缓存
     });
-    
+
     console.log(`请求完成: ${language} (${responseTime}ms)`);
-    
+
     res.json(data);
-    
+
   } catch (error) {
     requestStats.errors++;
     const responseTime = Date.now() - startTime;
-    
+
     console.error(`代理请求失败 [${language}]:`, error.message);
-    
+
     res.status(500).json({
       error: '无法获取维基百科数据',
       code: 'PROXY_ERROR',
