@@ -11,7 +11,8 @@
     "test": "node test.js",
     "vercel-build": "echo 'Vercel build completed'",
     "deploy-check": "node deploy-check.js",
-    "vercel-check": "node vercel-check.js"
+    "vercel-check": "node vercel-check.js",
+    "test-deployment": "node test-deployment.js"
   },
   "keywords": [
     "wikipedia",

@@ -69,9 +69,17 @@ vercel --prod
 
 部署完成后，你可以通过以下端点测试：
 
-- 健康检查: `https://your-deployment.vercel.app/health`
-- 服务信息: `https://your-deployment.vercel.app/`
-- API代理: `https://your-deployment.vercel.app/api/wikipedia/en?action=query&format=json&titles=Test`
+- **首页**: `https://your-deployment.vercel.app/`
+- **健康检查**: `https://your-deployment.vercel.app/health`
+- **使用统计**: `https://your-deployment.vercel.app/usage`
+- **API代理**: `https://your-deployment.vercel.app/api/wikipedia/en?action=query&format=json&titles=Test`
+
+**自动化测试**:
+```bash
+npm run test-deployment
+```
+
+这个脚本会自动测试所有端点并报告状态。
 
 ## 常见问题解决
 
@@ -87,23 +95,27 @@ vercel --prod
 **错误**: `No Output Directory named "public" found after the Build completed`
 **解决**: 已创建`public`目录和静态首页，满足Vercel部署要求
 
-### 4. 函数路径错误
+### 4. API端点404错误
+**错误**: 访问`/health`、`/usage`等端点返回404
+**解决**: 已在vercel.json中添加这些端点的rewrite规则，确保正确路由到API函数
+
+### 5. 函数路径错误
 **错误**: `The pattern "index.js" defined in 'functions' doesn't match any Serverless Functions inside the 'api' directory`
 **解决**: 已将主函数移动到`api/index.js`，并更新vercel.json配置
 
-### 5. 模块导入问题
+### 6. 模块导入问题
 - 确保package.json中设置了`"type": "module"`
 - 使用ES6模块语法 (`import/export`)
 
-### 6. 函数超时
+### 7. 函数超时
 - 已将函数超时时间设置为30秒 (`maxDuration: 30`)
 - 如需更长时间，可以升级Vercel套餐
 
-### 7. CORS问题
+### 8. CORS问题
 - 已在代码和vercel.json中配置了CORS头部
 - API支持跨域请求
 
-### 8. 依赖问题
+### 9. 依赖问题
 - 确保所有依赖都在package.json的dependencies中
 - 运行`npm install`确保依赖正确安装
 
