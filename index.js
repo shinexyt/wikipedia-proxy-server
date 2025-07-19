@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import compression from 'compression';
 import morgan from 'morgan';
+import fetch from 'node-fetch';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -254,14 +255,16 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-// 启动服务器
-app.listen(PORT, () => {
-  console.log(`🚀 维基百科代理服务器已启动`);
-  console.log(`📡 监听端口: ${PORT}`);
-  console.log(`🌍 支持语言: ${SUPPORTED_LANGUAGES.length}种`);
-  console.log(`🔗 健康检查: http://localhost:${PORT}/health`);
-  console.log(`📊 使用统计: http://localhost:${PORT}/usage`);
-  console.log(`🔧 代理端点: http://localhost:${PORT}/api/wikipedia/{language}`);
-});
+// 启动服务器（仅在非Vercel环境下）
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`🚀 维基百科代理服务器已启动`);
+    console.log(`📡 监听端口: ${PORT}`);
+    console.log(`🌍 支持语言: ${SUPPORTED_LANGUAGES.length}种`);
+    console.log(`🔗 健康检查: http://localhost:${PORT}/health`);
+    console.log(`📊 使用统计: http://localhost:${PORT}/usage`);
+    console.log(`🔧 代理端点: http://localhost:${PORT}/api/wikipedia/{language}`);
+  });
+}
 
 export default app;
