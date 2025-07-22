@@ -73,6 +73,7 @@ app.get('/', (req, res) => {
     endpoints: {
       health: '/health',
       proxy: '/api/wikipedia/{language}',
+      images: '/api/images/{project}/{path}',
       usage: '/usage'
     },
     supported_languages: SUPPORTED_LANGUAGES.length,
@@ -133,6 +134,142 @@ function buildWikipediaURL(language, params) {
 
   return `${baseURL}?${urlParams.toString()}`;
 }
+
+// 构建Wikimedia图片URL
+function buildWikimediaImageURL(project, imagePath) {
+  // 支持的项目: commons, en, zh, fr, de, ja, etc.
+  const validProjects = ['commons', ...SUPPORTED_LANGUAGES];
+  
+  if (!validProjects.includes(project)) {
+    throw new Error(`不支持的项目: ${project}`);
+  }
+
+  // 构建Wikimedia URL
+  const baseURL = `https://upload.wikimedia.org/wikipedia/${project}`;
+  
+  // 确保路径以/开头
+  const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  
+  return `${baseURL}${cleanPath}`;
+}
+
+// 检测文件扩展名对应的Content-Type
+function getContentTypeFromPath(imagePath) {
+  const extension = imagePath.toLowerCase().split('.').pop();
+  const contentTypes = {
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'gif': 'image/gif',
+    'svg': 'image/svg+xml',
+    'webp': 'image/webp',
+    'bmp': 'image/bmp',
+    'ico': 'image/x-icon'
+  };
+  
+  return contentTypes[extension] || 'application/octet-stream';
+}
+
+// Wikipedia图片代理端点
+app.get('/api/images/:project/*', async (req, res) => {
+  const { project } = req.params;
+  const imagePath = req.params[0]; // 获取通配符部分
+  const startTime = Date.now();
+
+  try {
+    // 更新统计
+    requestStats.total++;
+    requestStats.byLanguage[`images-${project}`] = (requestStats.byLanguage[`images-${project}`] || 0) + 1;
+
+    // 验证项目参数
+    const validProjects = ['commons', ...SUPPORTED_LANGUAGES];
+    if (!validProjects.includes(project)) {
+      return res.status(400).json({
+        error: `不支持的图片项目: ${project}`,
+        code: 'UNSUPPORTED_PROJECT',
+        supported_projects: validProjects
+      });
+    }
+
+    // 验证图片路径
+    if (!imagePath || imagePath.length === 0) {
+      return res.status(400).json({
+        error: '图片路径不能为空',
+        code: 'INVALID_IMAGE_PATH'
+      });
+    }
+
+    // 构建Wikimedia图片URL
+    const imageURL = buildWikimediaImageURL(project, imagePath);
+    
+    console.log(`图片代理请求: ${project}/${imagePath} -> ${imageURL}`);
+
+    // 发起请求到Wikimedia
+    const response = await fetch(imageURL, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'WikiTok-Proxy/1.0 (https://github.com/shinexyt/wikipedia-proxy-server)',
+        'Accept': 'image/*,*/*',
+        'Accept-Encoding': 'gzip, deflate',
+      },
+      timeout: 15000 // 15秒超时，图片可能较大
+    });
+
+    if (!response.ok) {
+      throw new Error(`Wikimedia图片响应错误: ${response.status} ${response.statusText}`);
+    }
+
+    const contentType = response.headers.get('content-type') || getContentTypeFromPath(imagePath);
+    const contentLength = response.headers.get('content-length');
+    const lastModified = response.headers.get('last-modified');
+    const etag = response.headers.get('etag');
+    
+    const responseTime = Date.now() - startTime;
+
+    // 设置响应头
+    res.set({
+      'Content-Type': contentType,
+      'X-Proxy-Server': 'wikipedia-proxy-v1.0',
+      'X-Response-Time': `${responseTime}ms`,
+      'X-Source-Project': project,
+      'Cache-Control': 'public, max-age=86400, immutable', // 24小时缓存，图片通常不变
+      'Access-Control-Allow-Origin': '*'
+    });
+
+    // 如果有内容长度，设置它
+    if (contentLength) {
+      res.set('Content-Length', contentLength);
+    }
+
+    // 如果有Last-Modified和ETag，传递它们以支持条件请求
+    if (lastModified) {
+      res.set('Last-Modified', lastModified);
+    }
+    if (etag) {
+      res.set('ETag', etag);
+    }
+
+    console.log(`图片请求完成: ${project}/${imagePath} (${responseTime}ms, ${contentType})`);
+
+    // 流式传输图片数据
+    response.body.pipe(res);
+
+  } catch (error) {
+    requestStats.errors++;
+    const responseTime = Date.now() - startTime;
+
+    console.error(`图片代理请求失败 [${project}/${imagePath}]:`, error.message);
+
+    res.status(500).json({
+      error: '无法获取Wikimedia图片',
+      code: 'IMAGE_PROXY_ERROR',
+      message: error.message,
+      project: project,
+      imagePath: imagePath,
+      responseTime: `${responseTime}ms`
+    });
+  }
+});
 
 // 主要的代理端点
 app.get('/api/wikipedia/:language', async (req, res) => {
@@ -229,7 +366,7 @@ app.use('*', (req, res) => {
     error: '端点不存在',
     code: 'NOT_FOUND',
     path: req.originalUrl,
-    available_endpoints: ['/health', '/usage', '/api/wikipedia/{language}']
+    available_endpoints: ['/health', '/usage', '/api/wikipedia/{language}', '/api/images/{project}/{path}']
   });
 });
 
@@ -263,6 +400,7 @@ if (process.env.VERCEL !== '1') {
     console.log(`🔗 健康检查: http://localhost:${PORT}/health`);
     console.log(`📊 使用统计: http://localhost:${PORT}/usage`);
     console.log(`🔧 代理端点: http://localhost:${PORT}/api/wikipedia/{language}`);
+    console.log(`🖼️  图片端点: http://localhost:${PORT}/api/images/{project}/{path}`);
   });
 }
 

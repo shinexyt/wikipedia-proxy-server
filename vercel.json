@@ -38,10 +38,24 @@
         {
           "key": "Access-Control-Allow-Headers",
           "value": "Content-Type, Authorization, X-Requested-With"
-        },
+        }
+      ]
+    },
+    {
+      "source": "/api/wikipedia/(.*)",
+      "headers": [
         {
           "key": "Cache-Control",
           "value": "public, max-age=300"
+        }
+      ]
+    },
+    {
+      "source": "/api/images/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, immutable"
         }
       ]
     }
