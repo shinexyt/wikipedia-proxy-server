@@ -58,7 +58,7 @@
 <body>
     <div class="header">
         <h1>🌍 Wikipedia API 代理服务器</h1>
-        <p>提供维基百科API代理服务</p>
+        <p>提供维基百科API和图片代理服务</p>
         <div class="status-indicator"></div>
         <span>服务运行中</span>
     </div>
@@ -75,6 +75,13 @@
         <h3>Wikipedia API 代理</h3>
         <p><strong>GET</strong> <code>/api/wikipedia/{language}</code></p>
         <p>代理维基百科API请求，支持所有标准Wikipedia API参数</p>
+    </div>
+
+    <div class="endpoint">
+        <h3>🖼️ Wikipedia 图片代理</h3>
+        <p><strong>GET</strong> <code>/api/images/{project}/{path}</code></p>
+        <p>代理Wikimedia图片请求，支持commons和各语言项目的图片</p>
+        <p><strong>支持项目：</strong> commons, en, zh, fr, de, ja, ko, 等...</p>
     </div>
 
     <div class="endpoint">
@@ -96,16 +103,26 @@ curl "/api/wikipedia/zh?action=query&format=json&generator=random&grnnamespace=0
 
 # 搜索文章
 curl "/api/wikipedia/en?action=query&format=json&list=search&srsearch=artificial+intelligence&srlimit=10"
+
+# 获取Wikimedia Commons图片
+curl "/api/images/commons/thumb/1/1a/Wikipedia-logo-v2.svg/100px-Wikipedia-logo-v2.svg.png"
+
+# 获取中文维基图片
+curl "/api/images/zh/thumb/c/ce/Example.jpg/200px-Example.jpg"
+
+# 获取英文维基图片
+curl "/api/images/en/thumb/a/a0/Example.png/150px-Example.png"
     </div>
 
     <h2>⚡ 技术特性</h2>
     <div class="feature">无服务器架构 - 基于Vercel Functions</div>
     <div class="feature">CORS支持 - 支持跨域请求</div>
-    <div class="feature">缓存优化 - 5分钟API响应缓存</div>
+    <div class="feature">缓存优化 - API 5分钟缓存，图片24小时缓存</div>
     <div class="feature">压缩传输 - gzip压缩</div>
     <div class="feature">安全头部 - helmet安全配置</div>
     <div class="feature">速率限制 - 防止API滥用</div>
     <div class="feature">错误处理 - 完善的错误处理机制</div>
+    <div class="feature">图片代理 - 直接代理Wikimedia图片，无需第三方服务</div>
 
     <footer style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #eee; color: #666;">
         <p>由 <a href="https://github.com/shinexyt/wikipedia-proxy-server" style="color: #007bff;">Wikipedia Proxy Server</a> 强力驱动</p>
